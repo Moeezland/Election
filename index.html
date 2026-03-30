@@ -83,6 +83,12 @@ onAuthStateChanged(auth, (user) => {
     window.location.href = "login.html";
   }
 });
+
+// 🔓 LOGOUT FUNCTION
+document.getElementById("logoutBtn").onclick = async () => {
+  await signOut(auth);
+  window.location.href = "login.html";
+};  
 </script>
   
 </body>
