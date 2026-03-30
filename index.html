@@ -117,7 +117,7 @@ onAuthStateChanged(auth, async (user) => {
 
     const voteContainer = document.getElementById("voteButtons");
 
-    data.candidates.forEach(candidate => {
+  data.candidates.forEach(candidate => {
   const btn = document.createElement("button");
   btn.className = "btn btn-primary w-100 mb-2";
   btn.innerText = `Vote for ${candidate}`;
@@ -148,7 +148,7 @@ onAuthStateChanged(auth, async (user) => {
 
     alert("✅ Vote submitted successfully!");
 
-    // Optional: disable buttons after vote
+    // 🔒 Disable buttons after voting
     document.querySelectorAll("#voteButtons button").forEach(b => {
       b.disabled = true;
     });
