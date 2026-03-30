@@ -60,27 +60,9 @@ body { background-color: #f0f2f5; }
 <div class="row">
 
 <div class="col-md-6">
-<h5>Vote Tally (Total Votes: 40)</h5>
+<h5 id="totalVotes">Vote Tally (Total Votes: 0)</h5>
 
-<ul class="list-group">
-
-<li class="list-group-item d-flex justify-content-between">
-<div>Candidate A</div>
-<div>
-<span class="badge bg-primary">25 Votes</span>
-<span class="badge bg-secondary">62.5%</span>
-</div>
-</li>
-
-<li class="list-group-item d-flex justify-content-between">
-<div>Candidate B</div>
-<div>
-<span class="badge bg-primary">15 Votes</span>
-<span class="badge bg-secondary">37.5%</span>
-</div>
-</li>
-
-</ul>
+<ul id="resultsList" class="list-group"></ul>
 </div>
 
 <div class="col-md-6 text-center">
@@ -98,20 +80,86 @@ body { background-color: #f0f2f5; }
   <p>© 2026 Government of Moeezland. All rights reserved.</p>
 </footer>
 
-<script>
-new Chart(document.getElementById('chart'), {
-  type: 'pie',
-  data: {
-    labels: ['Candidate A', 'Candidate B'],
-    datasets: [{
-      data: [25, 15],
-      backgroundColor: [
-        'rgba(54, 162, 235, 0.7)',
-        'rgba(255, 99, 132, 0.7)'
-      ]
-    }]
-  }
-});
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCs-pheSxe9bkAqnhG9qOjF7RvFfb9k00A",
+  authDomain: "e-civilian-portal2007.firebaseapp.com",
+  projectId: "e-civilian-portal2007",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function loadResults() {
+  const docRef = doc(db, "results", "2026-election");
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) return;
+
+  const data = docSnap.data();
+
+  let total = 0;
+  let entries = Object.entries(data);
+
+  // 🧮 calculate total votes
+  entries.forEach(([name, votes]) => {
+    total += votes;
+  });
+
+  // 🧾 update total
+  document.getElementById("totalVotes").innerText =
+    `Vote Tally (Total Votes: ${total})`;
+
+  // 🧾 build list dynamically
+  const list = document.getElementById("resultsList");
+  list.innerHTML = "";
+
+  let labels = [];
+  let values = [];
+
+  entries.forEach(([name, votes]) => {
+    const percent = ((votes / total) * 100).toFixed(1);
+
+    labels.push(name);
+    values.push(votes);
+
+    const li = document.createElement("li");
+    li.className = "list-group-item d-flex justify-content-between";
+
+    li.innerHTML = `
+      <div>${name}</div>
+      <div>
+        <span class="badge bg-primary">${votes} Votes</span>
+        <span class="badge bg-secondary">${percent}%</span>
+      </div>
+    `;
+
+    list.appendChild(li);
+  });
+
+  // 📊 chart
+  new Chart(document.getElementById('chart'), {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: [
+          'rgba(54, 162, 235, 0.7)',
+          'rgba(255, 99, 132, 0.7)',
+          'rgba(255, 206, 86, 0.7)',
+          'rgba(75, 192, 192, 0.7)',
+          'rgba(153, 102, 255, 0.7)'
+        ]
+      }]
+    }
+  });
+}
+
+loadResults();
 </script>
 
 </body>
