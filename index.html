@@ -58,5 +58,29 @@ body { background-color: #f0f2f5; }
   <p>© 2026 Government of Moeezland. All rights reserved.</p>
 </footer>
 
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCs-pheSxe9bkAqnhG9qOjF7RvFfb9k00A",
+  authDomain: "e-civilian-portal2007.firebaseapp.com",
+  projectId: "e-civilian-portal2007",
+  storageBucket: "e-civilian-portal2007.firebasestorage.app",
+  messagingSenderId: "465001179759",
+  appId: "1:465001179759:web:60a45e286fbf1a39ac7b9a"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// 🔐 PROTECT PAGE
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+  }
+});
+</script>
+  
 </body>
 </html>
