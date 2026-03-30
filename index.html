@@ -69,31 +69,64 @@ body { background-color: #f0f2f5; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCs-pheSxe9bkAqnhG9qOjF7RvFfb9k00A",
+  apiKey: "AIzaSy...",
   authDomain: "e-civilian-portal2007.firebaseapp.com",
-  projectId: "e-civilian-portal2007",
-  storageBucket: "e-civilian-portal2007.firebasestorage.app",
-  messagingSenderId: "465001179759",
-  appId: "1:465001179759:web:60a45e286fbf1a39ac7b9a"
+  projectId: "e-civilian-portal2007"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// 🔐 PROTECT PAGE
-onAuthStateChanged(auth, (user) => {
+// 🔐 Protect page
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "login.html";
+    return;
+  }
+
+  // 🔥 Check active election
+  const docRef = doc(db, "activeElection", "current");
+  const docSnap = await getDoc(docRef);
+
+  const container = document.querySelector(".holding-page");
+
+  if (docSnap.exists() && docSnap.data().status === "active") {
+    const data = docSnap.data();
+
+    container.innerHTML = `
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Active Election</h2>
+          <p class="card-text">Cast your vote below.</p>
+
+          <div id="voteButtons"></div>
+        </div>
+      </div>
+    `;
+
+    const voteContainer = document.getElementById("voteButtons");
+
+    data.candidates.forEach(candidate => {
+      const btn = document.createElement("button");
+      btn.className = "btn btn-primary w-100 mb-2";
+      btn.innerText = `Vote for ${candidate}`;
+      voteContainer.appendChild(btn);
+    });
+
+  } else {
+    // keep your original "No Active Election"
   }
 });
 
-// 🔓 LOGOUT FUNCTION
+// logout
 document.getElementById("logoutBtn").onclick = async () => {
   await signOut(auth);
   window.location.href = "login.html";
-};  
+};
 </script>
   
 </body>
