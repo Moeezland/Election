@@ -20,6 +20,38 @@ body { background-color: #f0f2f5; }
 .header-logo { height: 60px; }
 .header-title { font-size: 1.75rem; font-weight: bold; color: #333; }
 .holding-page { text-align: center; padding: 5rem 1rem; }
+
+/* 📱 MOBILE OPTIMIZATION */
+@media (max-width: 768px) {
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .header-logo {
+    height: 40px;
+  }
+
+  .header-title {
+    font-size: 1.3rem;
+  }
+
+  .holding-page {
+    padding: 2rem 1rem;
+  }
+
+  .card {
+    margin: 10px;
+  }
+
+  .chart-container {
+    height: 200px;
+  }
+
+}
+  
 </style>
 </head>
 
