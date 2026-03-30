@@ -68,6 +68,9 @@ body { background-color: #f0f2f5; }
 <div class="col-md-6 text-center">
 <h5>Vote Distribution</h5>
 <canvas id="chart"></canvas>
+
+<div id="resultsContainer"></div>
+  
 </div>
 
 </div>
@@ -82,7 +85,7 @@ body { background-color: #f0f2f5; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCs-pheSxe9bkAqnhG9qOjF7RvFfb9k00A",
@@ -93,73 +96,97 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function loadResults() {
-  const docRef = doc(db, "results", "2026-election");
-  const docSnap = await getDoc(docRef);
+async function loadAllResults() {
+  const snapshot = await getDocs(collection(db, "results"));
 
-  if (!docSnap.exists()) return;
+  let elections = [];
 
-  const data = docSnap.data();
-
-  let total = 0;
-  let entries = Object.entries(data);
-
-  // 🧮 calculate total votes
-  entries.forEach(([name, votes]) => {
-    total += votes;
+  snapshot.forEach(doc => {
+    elections.push({
+      id: doc.id,
+      data: doc.data()
+    });
   });
 
-  // 🧾 update total
-  document.getElementById("totalVotes").innerText =
-    `Vote Tally (Total Votes: ${total})`;
+  // 🔥 Sort newest first (by year in ID)
+  elections.sort((a, b) => b.id.localeCompare(a.id));
 
-  // 🧾 build list dynamically
-  const list = document.getElementById("resultsList");
-  list.innerHTML = "";
+  const container = document.getElementById("resultsContainer");
+  container.innerHTML = "";
 
-  let labels = [];
-  let values = [];
+  elections.forEach(election => {
+    const data = election.data;
 
-  entries.forEach(([name, votes]) => {
-    const percent = ((votes / total) * 100).toFixed(1);
+    let total = 0;
+    let entries = Object.entries(data);
 
-    labels.push(name);
-    values.push(votes);
+    entries.forEach(([_, votes]) => total += votes);
 
-    const li = document.createElement("li");
-    li.className = "list-group-item d-flex justify-content-between";
+    // 🧱 Create card
+    const card = document.createElement("div");
+    card.className = "card mb-4";
 
-    li.innerHTML = `
-      <div>${name}</div>
-      <div>
-        <span class="badge bg-primary">${votes} Votes</span>
-        <span class="badge bg-secondary">${percent}%</span>
+    let listHTML = "";
+
+    let labels = [];
+    let values = [];
+
+    entries.forEach(([name, votes]) => {
+      const percent = ((votes / total) * 100).toFixed(1);
+
+      labels.push(name);
+      values.push(votes);
+
+      listHTML += `
+        <li class="list-group-item d-flex justify-content-between">
+          <div>${name}</div>
+          <div>
+            <span class="badge bg-primary">${votes} Votes</span>
+            <span class="badge bg-secondary">${percent}%</span>
+          </div>
+        </li>
+      `;
+    });
+
+    card.innerHTML = `
+      <div class="card-header">
+        <h4>${election.id.replace("-election", "").toUpperCase()} General Election</h4>
+      </div>
+
+      <div class="card-body">
+        <h5>Vote Tally (Total Votes: ${total})</h5>
+
+        <ul class="list-group mb-3">
+          ${listHTML}
+        </ul>
+
+        <canvas id="chart-${election.id}"></canvas>
       </div>
     `;
 
-    list.appendChild(li);
-  });
+    container.appendChild(card);
 
-  // 📊 chart
-  new Chart(document.getElementById('chart'), {
-    type: 'pie',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: values,
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.7)',
-          'rgba(255, 99, 132, 0.7)',
-          'rgba(255, 206, 86, 0.7)',
-          'rgba(75, 192, 192, 0.7)',
-          'rgba(153, 102, 255, 0.7)'
-        ]
-      }]
-    }
+    // 📊 Chart per election
+    new Chart(document.getElementById(`chart-${election.id}`), {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: [
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)'
+          ]
+        }]
+      }
+    });
+
   });
 }
 
-loadResults();
+loadAllResults();
 </script>
 
 </body>
