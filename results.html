@@ -26,6 +26,10 @@ body { background-color: #f0f2f5; }
   border-radius: 50%;
   margin-right: 1rem;
 }
+.chart-container {
+  height: 250px;
+}
+  
 </style>
 </head>
 
@@ -146,7 +150,9 @@ async function loadAllResults() {
       <!-- RIGHT SIDE -->
       <div class="col-md-6 text-center">
         <h5>Vote Distribution</h5>
-        <canvas id="chart-${election.id}"></canvas>
+        <div class="chart-container">
+          <canvas id="chart-${election.id}"></canvas>
+        </div>
       </div>
 
     </div>
@@ -157,20 +163,24 @@ async function loadAllResults() {
 
     // 📊 Chart per election
     new Chart(document.getElementById(`chart-${election.id}`), {
-      type: 'pie',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: values,
-          backgroundColor: [
-            'rgba(54, 162, 235, 0.7)',
-            'rgba(255, 99, 132, 0.7)',
-            'rgba(255, 206, 86, 0.7)',
-            'rgba(75, 192, 192, 0.7)'
-          ]
-        }]
-      }
-    });
+  type: 'pie',
+  data: {
+    labels: labels,
+    datasets: [{
+      data: values,
+      backgroundColor: [
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(255, 206, 86, 0.7)',
+        'rgba(75, 192, 192, 0.7)'
+      ]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false
+  }
+});
 
   });
 }
