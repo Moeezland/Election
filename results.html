@@ -44,18 +44,6 @@ body { background-color: #f0f2f5; }
   <p>Results verified by the Monarch of Moeezland ✔</p>
 </div>
 
-<div class="card">
-<div class="card-header d-flex justify-content-between">
-  <div>
-    <h4>2026 General Election</h4>
-    <small class="text-muted">Concluded on: March 30, 2026</small>
-  </div>
-  <div>
-    <span class="badge bg-success">Verified ✔</span>
-    <span class="badge bg-info">Turnout: 75%</span>
-  </div>
-</div>
-
 <div class="card-body">
 <div class="row">
 
@@ -149,20 +137,37 @@ async function loadAllResults() {
     });
 
     card.innerHTML = `
-      <div class="card-header">
-        <h4>${election.id.replace("-election", "").toUpperCase()} General Election</h4>
-      </div>
+  <div class="card-header d-flex justify-content-between">
+    <div>
+      <h4>${election.id.replace("-election", "").toUpperCase()} General Election</h4>
+      <small class="text-muted">Archived Result</small>
+    </div>
+    <div>
+      <span class="badge bg-success">Verified ✔</span>
+    </div>
+  </div>
 
-      <div class="card-body">
+  <div class="card-body">
+    <div class="row">
+
+      <!-- LEFT SIDE -->
+      <div class="col-md-6">
         <h5>Vote Tally (Total Votes: ${total})</h5>
 
-        <ul class="list-group mb-3">
+        <ul class="list-group">
           ${listHTML}
         </ul>
+      </div>
 
+      <!-- RIGHT SIDE -->
+      <div class="col-md-6 text-center">
+        <h5>Vote Distribution</h5>
         <canvas id="chart-${election.id}"></canvas>
       </div>
-    `;
+
+    </div>
+  </div>
+`;
 
     container.appendChild(card);
 
