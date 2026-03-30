@@ -70,6 +70,7 @@ body { background-color: #f0f2f5; }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCs-pheSxe9bkAqnhG9qOjF7RvFfb9k00A",
@@ -117,11 +118,44 @@ onAuthStateChanged(auth, async (user) => {
     const voteContainer = document.getElementById("voteButtons");
 
     data.candidates.forEach(candidate => {
-      const btn = document.createElement("button");
-      btn.className = "btn btn-primary w-100 mb-2";
-      btn.innerText = `Vote for ${candidate}`;
-      voteContainer.appendChild(btn);
+  const btn = document.createElement("button");
+  btn.className = "btn btn-primary w-100 mb-2";
+  btn.innerText = `Vote for ${candidate}`;
+
+  btn.onclick = async () => {
+    const user = auth.currentUser;
+
+    // 🔍 Check if already voted
+    const q = query(
+      collection(db, "votes"),
+      where("userId", "==", user.uid),
+      where("electionId", "==", data.id)
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+      alert("❌ You have already voted!");
+      return;
+    }
+
+    // ✅ Save vote
+    await addDoc(collection(db, "votes"), {
+      userId: user.uid,
+      candidate: candidate,
+      electionId: data.id
     });
+
+    alert("✅ Vote submitted successfully!");
+
+    // Optional: disable buttons after vote
+    document.querySelectorAll("#voteButtons button").forEach(b => {
+      b.disabled = true;
+    });
+  };
+
+  voteContainer.appendChild(btn);
+});
 
   } else {
     // keep your original "No Active Election"
