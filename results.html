@@ -91,7 +91,6 @@ body { background-color: #f0f2f5; }
 <div class="card-body">
 <div id="resultsContainer"></div>
 </div>
-</div>
 
 </main>
 
@@ -135,6 +134,16 @@ async function loadResultsFromVotes() {
   });
 
   const container = document.getElementById("resultsContainer");
+
+  if (snapshot.empty) {
+  container.innerHTML = `
+    <div class="alert alert-warning text-center">
+      No election results available yet.
+    </div>
+  `;
+  return;
+}
+  
   container.innerHTML = "";
 
   // convert object → array for sorting
@@ -153,7 +162,7 @@ async function loadResultsFromVotes() {
     let values = [];
 
     entries.forEach(([name, votes]) => {
-      const percent = ((votes / total) * 100).toFixed(1);
+      const percent = total === 0 ? 0 : ((votes / total) * 100).toFixed(1);
 
       labels.push(name);
       values.push(votes);
