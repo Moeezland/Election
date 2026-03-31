@@ -112,38 +112,43 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function loadAllResults() {
-  const snapshot = await getDocs(collection(db, "results"));
+async function loadResultsFromVotes() {
+  const snapshot = await getDocs(collection(db, "votes"));
 
-  let elections = [];
+  let elections = {};
 
   snapshot.forEach(doc => {
-    elections.push({
-      id: doc.id,
-      data: doc.data()
-    });
-  });
+    const data = doc.data();
 
-  // 🔥 Sort newest first (by year in ID)
-  elections.sort((a, b) => b.id.localeCompare(a.id));
+    const electionId = data.electionId;
+    const candidate = data.candidate;
+
+    if (!elections[electionId]) {
+      elections[electionId] = {};
+    }
+
+    if (!elections[electionId][candidate]) {
+      elections[electionId][candidate] = 0;
+    }
+
+    elections[electionId][candidate]++;
+  });
 
   const container = document.getElementById("resultsContainer");
   container.innerHTML = "";
 
-  elections.forEach(election => {
-    const data = election.data;
+  // convert object → array for sorting
+  const sortedElections = Object.entries(elections)
+    .sort((a, b) => b[0].localeCompare(a[0]));
+
+  sortedElections.forEach(([electionId, data]) => {
 
     let total = 0;
     let entries = Object.entries(data);
 
     entries.forEach(([_, votes]) => total += votes);
 
-    // 🧱 Create card
-    const card = document.createElement("div");
-    card.className = "card mb-4";
-
     let listHTML = "";
-
     let labels = [];
     let values = [];
 
@@ -164,68 +169,67 @@ async function loadAllResults() {
       `;
     });
 
+    const card = document.createElement("div");
+    card.className = "card mb-4";
+
     card.innerHTML = `
-  <div class="card-header d-flex justify-content-between">
-    <div>
-      <h4>${election.id.replace("-election", "").toUpperCase()} </h4>
-      <small class="text-muted">Archived Result</small>
-    </div>
-    <div>
-      <span class="badge bg-success">Verified ✔</span>
-    </div>
-  </div>
-
-  <div class="card-body">
-    <div class="row g-3">
-
-      <!-- LEFT SIDE -->
-      <div class="col-12 col-md-6">
-        <h5>Vote Tally (Total Votes: ${total})</h5>
-
-        <ul class="list-group">
-          ${listHTML}
-        </ul>
-      </div>
-
-      <!-- RIGHT SIDE -->
-      <div class="col-12 col-md-6 text-center">
-        <h5>Vote Distribution</h5>
-        <div class="chart-container">
-          <canvas id="chart-${election.id}"></canvas>
+      <div class="card-header d-flex justify-content-between">
+        <div>
+          <h4>${electionId.replace("-election", "").toUpperCase()}</h4>
+          <small class="text-muted">Auto Counted Result</small>
+        </div>
+        <div>
+          <span class="badge bg-success">Verified ✔</span>
         </div>
       </div>
 
-    </div>
-  </div>
-`;
+      <div class="card-body">
+        <div class="row g-3">
+
+          <div class="col-12 col-md-6">
+            <h5>Vote Tally (Total Votes: ${total})</h5>
+            <ul class="list-group">
+              ${listHTML}
+            </ul>
+          </div>
+
+          <div class="col-12 col-md-6 text-center">
+            <h5>Vote Distribution</h5>
+            <div class="chart-container">
+              <canvas id="chart-${electionId}"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    `;
 
     container.appendChild(card);
 
-    // 📊 Chart per election
-    new Chart(document.getElementById(`chart-${election.id}`), {
-  type: 'pie',
-  data: {
-    labels: labels,
-    datasets: [{
-      data: values,
-      backgroundColor: [
-        'rgba(54, 162, 235, 0.7)',
-        'rgba(255, 99, 132, 0.7)',
-        'rgba(255, 206, 86, 0.7)',
-        'rgba(75, 192, 192, 0.7)'
-      ]
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false
-  }
-});
+    new Chart(document.getElementById(`chart-${electionId}`), {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: [
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
 
   });
 }
 
-loadAllResults();
+loadResultsFromVotes();
 </script>
 
 </body>
