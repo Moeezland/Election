@@ -167,10 +167,10 @@ async function loadAllResults() {
   </div>
 
   <div class="card-body">
-    <div class="row">
+    <div class="row g-3">
 
       <!-- LEFT SIDE -->
-      <div class="col-md-6">
+      <div class="col-12 col-md-6">
         <h5>Vote Tally (Total Votes: ${total})</h5>
 
         <ul class="list-group">
@@ -179,7 +179,7 @@ async function loadAllResults() {
       </div>
 
       <!-- RIGHT SIDE -->
-      <div class="col-md-6 text-center">
+      <div class="col-12 col-md-6 text-center">
         <h5>Vote Distribution</h5>
         <div class="chart-container">
           <canvas id="chart-${election.id}"></canvas>
