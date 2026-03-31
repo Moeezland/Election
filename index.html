@@ -195,10 +195,13 @@ onAuthStateChanged(auth, async (user) => {
   voteContainer.appendChild(btn);
 });
 
-  } else {
-    // keep your original "No Active Election"
-  }
-});
+    } else {
+      // keep your original "No Active Election"
+    }
+
+  } // ✅ CLOSE docSnap.exists()
+
+  });
 
 // logout
 document.getElementById("logoutBtn").onclick = async () => {
