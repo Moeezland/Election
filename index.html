@@ -123,13 +123,8 @@ const db = getFirestore(app);
 
 // 🔐 Protect page
 onAuthStateChanged(auth, async (user) => {
-  if (user === null) {
-    // wait a bit before redirecting
-    setTimeout(() => {
-      if (!auth.currentUser) {
-        window.location.href = "login.html";
-      }
-    }, 500);
+  if (!user) {
+    window.location.href = "login.html";
     return;
   }
 
