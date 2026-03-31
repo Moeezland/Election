@@ -135,8 +135,12 @@ onAuthStateChanged(auth, async (user) => {
 
   const container = document.querySelector(".holding-page");
 
-  if (docSnap.exists() && docSnap.data().status === "active") {
+  if (docSnap.exists()) {
     const data = docSnap.data();
+
+    const now = Date.now();
+
+    if (data.status === "active" && now < data.endTime) {
 
     container.innerHTML = `
       <div class="card">
@@ -191,6 +195,22 @@ onAuthStateChanged(auth, async (user) => {
   voteContainer.appendChild(btn);
 });
 
+  } else {
+    // 🔴 Election ended
+    container.innerHTML = `
+      <div class="card">
+        <div class="card-body text-center">
+          <h2 class="card-title">Election Ended</h2>
+          <p class="card-text">Voting has closed.</p>
+
+          <a href="results.html" class="btn btn-primary mt-3">
+            View Results
+          </a>
+        </div>
+      </div>
+    `;
+  }
+      
   } else {
     // keep your original "No Active Election"
   }
