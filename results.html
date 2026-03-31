@@ -119,6 +119,10 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 async function loadResultsFromVotes() {
+
+  const loading = document.getElementById("loading");
+  const container = document.getElementById("resultsContainer");
+  
   const snapshot = await getDocs(collection(db, "votes"));
 
   loading.style.display = "none";
@@ -142,8 +146,6 @@ async function loadResultsFromVotes() {
 
     elections[electionId][candidate]++;
   });
-
-  const container = document.getElementById("resultsContainer");
 
   if (snapshot.empty) {
   container.innerHTML = `
