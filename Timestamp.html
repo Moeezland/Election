@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Timestamp Generator</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 50px;
+      background: #f0f2f5;
+    }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+      width: 250px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🕒 Timestamp Generator</h1>
+
+  <input type="datetime-local" id="dateInput">
+  <br>
+  <button onclick="generate()">Generate Timestamp</button>
+
+  <div id="output"></div>
+
+  <script>
+    function generate() {
+      const input = document.getElementById("dateInput").value;
+
+      if (!input) {
+        alert("Select a date first!");
+        return;
+      }
+
+      const timestamp = new Date(input).getTime();
+
+      document.getElementById("output").innerText =
+        "Timestamp: " + timestamp;
+    }
+  </script>
+
+</body>
+</html>
