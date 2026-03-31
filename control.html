@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Election Control Panel</title>
+</head>
+<body style="font-family: Arial; text-align:center; padding:40px;">
+
+<h2>⚙️ Election Control Panel</h2>
+
+<!-- Election Name -->
+<input id="electionName" placeholder="Election Name (REQUIRED)"><br><br>
+
+<!-- Candidates -->
+<div id="candidatesContainer"></div>
+
+<button onclick="addCandidate()">➕ Add Candidate</button><br><br>
+
+<!-- End Time -->
+<input id="endTime" placeholder="End Time (timestamp REQUIRED)"><br><br>
+
+<p>Status: <b>active</b></p>
+
+<button onclick="createElection()">Create / Update Election</button>
+
+<p id="status"></p>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCs-pheSxe9bkAqnhG9qOjF7RvFfb9k00A",
+  authDomain: "e-civilian-portal2007.firebaseapp.com",
+  projectId: "e-civilian-portal2007"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const container = document.getElementById("candidatesContainer");
+
+// 🔥 Add candidate input
+window.addCandidate = function () {
+  const div = document.createElement("div");
+
+  div.innerHTML = `
+    <input placeholder="Candidate Name (REQUIRED)">
+    <button onclick="this.parentElement.remove()">❌</button>
+    <br><br>
+  `;
+
+  container.appendChild(div);
+};
+
+// 🔥 Add 2 default candidates initially
+addCandidate();
+addCandidate();
+
+window.createElection = async function () {
+  const name = document.getElementById("electionName").value.trim();
+  const endTimeRaw = document.getElementById("endTime").value.trim();
+
+  if (!name || !endTimeRaw) {
+    alert("⚠️ Fill required fields");
+    return;
+  }
+
+  const endTime = Number(endTimeRaw);
+
+  if (isNaN(endTime)) {
+    alert("❌ End time must be a NUMBER");
+    return;
+  }
+
+  // 🧠 Collect candidates
+  const inputs = container.querySelectorAll("input");
+  const candidates = [];
+
+  inputs.forEach(input => {
+    const val = input.value.trim();
+    if (val) candidates.push(val);
+  });
+
+  if (candidates.length < 2) {
+    alert("❌ At least 2 candidates required");
+    return;
+  }
+
+  await setDoc(doc(db, "activeElection", "current"), {
+    id: name,
+    candidates: candidates,
+    status: "active",
+    endTime: endTime
+  });
+
+  document.getElementById("status").innerText =
+    "✅ Election successfully created!";
+};
+</script>
+
+</body>
+</html>
