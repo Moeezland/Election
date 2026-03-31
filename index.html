@@ -69,7 +69,7 @@ body { background-color: #f0f2f5; }
 
 <div class="holding-page">
   <div class="card">
-    <div class="card-body">
+    <div class="card-body text-center text-md-start">
       <h2 class="card-title">No Active Election</h2>
       <p class="card-text">
         There are currently no active or scheduled elections.
@@ -151,7 +151,7 @@ onAuthStateChanged(auth, async (user) => {
 
   data.candidates.forEach(candidate => {
   const btn = document.createElement("button");
-  btn.className = "btn btn-primary w-100 mb-2";
+  btn.className = "btn btn-primary w-100 mb-2 py-2";
   btn.innerText = `Vote for ${candidate}`;
 
   btn.onclick = async () => {
