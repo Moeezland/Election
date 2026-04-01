@@ -131,12 +131,13 @@ onAuthStateChanged(auth, async (user) => {
 
   // ✅ user is logged in, continue normally
 
-  const docRef = doc(db, "activeElection", "current");
-  const docSnap = await getDoc(docRef);
-  loading.style.display = "none";
-
   const container = document.getElementById("mainContainer");
   const loading = document.getElementById("loading");
+
+  const docRef = doc(db, "activeElection", "current");
+  const docSnap = await getDoc(docRef);
+
+  loading.style.display = "none";
 
   if (docSnap.exists()) {
     const data = docSnap.data();
