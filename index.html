@@ -209,6 +209,25 @@ onAuthStateChanged(auth, async (user) => {
 
   } // ✅ CLOSE docSnap.exists()
 
+  else {
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-body text-center">
+        <h2 class="card-title">No Active Election</h2>
+        <p>There are currently no active or scheduled elections.</p>
+
+        <div class="mt-4">
+          <a href="results.html" class="btn btn-primary">
+            View Past Election Results
+          </a>
+        </div>
+
+        <p class="mt-3">Please check back later.</p>
+      </div>
+    </div>
+  `;
+}
+
   });
 
 // logout
